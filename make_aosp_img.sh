@@ -19,5 +19,5 @@
 
 #!/usr/bin/env bash
 
-source build/envsetup.sh && lunch aosp_rpi4-userdebug
+source build/envsetup.sh && lunch aosp_rpi4_car-userdebug
 make bootimage systemimage vendorimage $@
