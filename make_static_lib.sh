@@ -20,6 +20,48 @@
 #!/usr/bin/env bash
 
 ROS_DISTRO='iron'
+FAST_BUILD=false
+CLEAN_BUILD=false
+
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -r|--ros-distro)
+      ROS_DISTRO="$2"
+      shift
+      shift
+      ;;
+    -f|--fast-build)
+      FAST_BUILD=true
+      shift 
+      ;;
+    -c|--clean-build)
+      CLEAN_BUILD=true
+      shift 
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift
+      ;;
+  esac
+done
+
+
+if [ "$CLEAN_BUILD" = true ]; then
+    FAST_BUILD=false
+fi
+
+if [ "$FAST_BUILD" = false ]; then
+    mkdir -p vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/arm64/include/{rcl,rcutils,rmw,rosidl_runtime_c,rosidl_typesupport_interface,rcl_action,std_msgs,action_msgs,unique_identifier_msgs,builtin_interfaces,type_description_interfaces,service_msgs,rosidl_dynamic_typesupport}
+    touch vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/arm64/libmicroros.a
+    source build/envsetup.sh
+    lunch sdk_car_x86_64-userdebug
+    make nothing
+fi
 
 ./vendor/spyrosoft/roscar_tools/generate_cmake_toolchain.py
 cp vendor/spyrosoft/roscar_tools/colcon.meta microros_ws/
@@ -27,11 +69,16 @@ cp vendor/spyrosoft/roscar_tools/colcon.meta microros_ws/
 source /opt/ros/$ROS_DISTRO/setup.bash
 
 pushd microros_ws
-    # rm -rf build install log firmware
+    if [ "$CLEAN_BUILD" = true ]; then
+        rm -rf build install log firmware
+    fi
 
-    sudo apt update && rosdep update
-    rosdep install --from-paths src --ignore-src -y
-    colcon build
+    if [ "$FAST_BUILD" = false ]; then
+        sudo apt update && rosdep update
+        rosdep install --from-paths src --ignore-src -y
+        colcon build
+    fi
+
     source install/local_setup.bash
 
     if ! [ -d "firmware" ]; then

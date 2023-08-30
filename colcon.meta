@@ -33,11 +33,14 @@
         },
         "rmw_microxrcedds": {
             "cmake-args": [
-                "-DRMW_UXRCE_MAX_NODES=1",
-                "-DRMW_UXRCE_MAX_PUBLISHERS=1",
-                "-DRMW_UXRCE_MAX_SUBSCRIPTIONS=1",
-                "-DRMW_UXRCE_MAX_SERVICES=1",
-                "-DRMW_UXRCE_MAX_CLIENTS=1",
+                "-DRMW_UROS_ERROR_HANDLING=ON",
+                "-DRMW_UXRCE_DEFAULT_UDP_IP=10.97.40.112",
+                "-DRMW_UXRCE_DEFAULT_UDP_PORT=9999",
+                "-DRMW_UXRCE_MAX_NODES=8",
+                "-DRMW_UXRCE_MAX_PUBLISHERS=8",
+                "-DRMW_UXRCE_MAX_SUBSCRIPTIONS=8",
+                "-DRMW_UXRCE_MAX_SERVICES=8",
+                "-DRMW_UXRCE_MAX_CLIENTS=8",
                 "-DRMW_UXRCE_MAX_HISTORY=4"
             ]
         }

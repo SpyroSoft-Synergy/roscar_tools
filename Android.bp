@@ -40,13 +40,5 @@ cc_prebuilt_library_static {
         "libmicroros/prebuilt/arm64/include/rosidl_dynamic_typesupport",
     ],
     srcs: ["libmicroros/prebuilt/arm64/libmicroros.a"],
-    // target: {
-    //     android_arm64: {
-    //         srcs: ["libmicroros/prebuilt/arm64/libmicroros.a"],
-    //     },
-    //     android_arm: {
-    //         srcs: ["libmicroros/prebuilt/arm/libmicroros.a"],
-    //     }
-    // },
     strip: { none:true, },
 }

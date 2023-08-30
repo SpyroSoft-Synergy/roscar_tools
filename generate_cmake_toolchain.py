@@ -52,7 +52,8 @@ def find_in(key, input_string):
 
 
 root_path = os.path.abspath('./') + '/'
-makefile_path = get_makefile_path()
+# makefile_path = get_makefile_path()
+makefile_path = 'out/soong/make_vars-sdk_car_x86_64.mk'
 mk_vars = parse_makefile(makefile_path)
 
 toolchain_file_content = f"""#
@@ -69,7 +70,7 @@ set(CMAKE_SYSTEM_VERSION 31)
 
 set(CMAKE_SYSROOT                         {root_path + find_in('--sysroot ', mk_vars['SOONG_CLANG_HOST_GLOBAL_CFLAGS'])})
 set(CMAKE_ANDROID_STANDALONE_TOOLCHAIN    {root_path + find_in('--gcc-toolchain=', mk_vars['SOONG_CLANG_HOST_GLOBAL_CFLAGS'])})
-set(TOOLCHAIN_TRIPLE                      {mk_vars['SOONG_CLANG_CONFIG_arm64_TARGET_TRIPLE']})
+set(TOOLCHAIN_TRIPLE                      {mk_vars['SOONG_CLANG_CONFIG_x86_64_TARGET_TRIPLE']})
 
 # specify the cross compiler
 set(CMAKE_ASM_COMPILER                    {root_path + mk_vars['SOONG_CLANG']} CACHE STRING "")
