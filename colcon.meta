@@ -34,7 +34,7 @@
         "rmw_microxrcedds": {
             "cmake-args": [
                 "-DRMW_UROS_ERROR_HANDLING=ON",
-                "-DRMW_UXRCE_DEFAULT_UDP_IP=10.97.40.112",
+                "-DRMW_UXRCE_DEFAULT_UDP_IP=127.0.0.1",
                 "-DRMW_UXRCE_DEFAULT_UDP_PORT=9999",
                 "-DRMW_UXRCE_MAX_NODES=8",
                 "-DRMW_UXRCE_MAX_PUBLISHERS=8",
