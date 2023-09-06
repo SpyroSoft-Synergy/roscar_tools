@@ -26,41 +26,40 @@ CLEAN_BUILD=false
 POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -r|--ros-distro)
-      ROS_DISTRO="$2"
-      shift
-      shift
-      ;;
-    -f|--fast-build)
-      FAST_BUILD=true
-      shift 
-      ;;
-    -c|--clean-build)
-      CLEAN_BUILD=true
-      shift 
-      ;;
-    -*|--*)
-      echo "Unknown option $1"
-      exit 1
-      ;;
-    *)
-      POSITIONAL_ARGS+=("$1") # save positional arg
-      shift
-      ;;
+  -r | --ros-distro)
+    ROS_DISTRO="$2"
+    shift
+    shift
+    ;;
+  -f | --fast-build)
+    FAST_BUILD=true
+    shift
+    ;;
+  -c | --clean-build)
+    CLEAN_BUILD=true
+    shift
+    ;;
+  -* | --*)
+    echo "Unknown option $1"
+    exit 1
+    ;;
+  *)
+    POSITIONAL_ARGS+=("$1") # save positional arg
+    shift
+    ;;
   esac
 done
 
-
 if [ "$CLEAN_BUILD" = true ]; then
-    FAST_BUILD=false
+  FAST_BUILD=false
 fi
 
 if [ "$FAST_BUILD" = false ]; then
-    mkdir -p vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/arm64/include/{rcl,rcutils,rmw,rosidl_runtime_c,rosidl_typesupport_interface,rcl_action,std_msgs,action_msgs,unique_identifier_msgs,builtin_interfaces,type_description_interfaces,service_msgs,rosidl_dynamic_typesupport}
-    touch vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/arm64/libmicroros.a
-    source build/envsetup.sh
-    lunch sdk_car_x86_64-userdebug
-    make nothing
+  mkdir -p vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/include/{rcl,rcutils,rmw,rosidl_runtime_c,rosidl_typesupport_interface,rcl_action,std_msgs,action_msgs,unique_identifier_msgs,builtin_interfaces,type_description_interfaces,service_msgs,rosidl_dynamic_typesupport,ros2_android_vhal}
+  touch vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/libmicroros.a
+  source build/envsetup.sh
+  lunch sdk_car_x86_64-userdebug
+  make nothing
 fi
 
 ./vendor/spyrosoft/roscar_tools/generate_cmake_toolchain.py
@@ -69,26 +68,32 @@ cp vendor/spyrosoft/roscar_tools/colcon.meta microros_ws/
 source /opt/ros/$ROS_DISTRO/setup.bash
 
 pushd microros_ws
-    if [ "$CLEAN_BUILD" = true ]; then
-        rm -rf build install log firmware
-    fi
+if [ "$CLEAN_BUILD" = true ]; then
+  rm -rf build install log firmware
+fi
 
-    if [ "$FAST_BUILD" = false ]; then
-        sudo apt update && rosdep update
-        rosdep install --from-paths src --ignore-src -y
-        colcon build
-    fi
+if [ "$FAST_BUILD" = false ]; then
+  sudo apt update && rosdep update
+  rosdep install --from-paths src --ignore-src -y
+  colcon build
+fi
 
-    source install/local_setup.bash
+source install/local_setup.bash
 
-    if ! [ -d "firmware" ]; then
-        ros2 run micro_ros_setup create_firmware_ws.sh generate_lib
-        touch firmware/mcu_ws/ros2/libyaml_vendor/COLCON_IGNORE
-    fi
+if ! [ -d "firmware" ]; then
+  ros2 run micro_ros_setup create_firmware_ws.sh generate_lib
+  touch firmware/mcu_ws/ros2/libyaml_vendor/COLCON_IGNORE
+fi
 
-    ros2 run micro_ros_setup build_firmware.sh $(pwd)/android_clang_toolchain.cmake $(pwd)/colcon.meta
+pushd firmware/mcu_ws/uros
+if ! [ -d "ros2_android_vhal" ]; then
+  git clone https://github.com/SpyroSoft-Synergy/ros2_android_vhal.git
+fi
+popd # firmware/mcu_ws/uros
+
+ros2 run micro_ros_setup build_firmware.sh $(pwd)/android_clang_toolchain.cmake $(pwd)/colcon.meta
 popd # microros_ws
 
 # Copy the prebuilt library
-mkdir -p vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/arm64
-cp -r microros_ws/firmware/build/* vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/arm64/
+mkdir -p vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/
+cp -r microros_ws/firmware/build/* vendor/spyrosoft/roscar_tools/libmicroros/prebuilt/
